@@ -1,11 +1,9 @@
 #include <stdio.h>
-#include <limits.h>
 int main()
 {
-    int n,i,time=0,sm;
-    int at[20],bt[20],rt[20];
-    int ct[20],wt[20],tat[20];
-    int completed=0;
+    int n,i,time=0,smallest;
+    int at[20],bt[20],ct[20],tat[20],wt[20];
+    int completed[20]={0},count=0;
     float avgwt=0,avgtat=0;
     printf("Enter number of processes: ");
     scanf("%d",&n);
@@ -16,41 +14,40 @@ int main()
         scanf("%d",&at[i]);
         printf("Burst Time: ");
         scanf("%d",&bt[i]);
-        rt[i]=bt[i]; // remaining time
     }
-    while(completed!=n)
+    while(count<n)
     {
-        sm=-1;
-        int min=INT_MAX;
+        smallest=-1;
+        int min=9999;
         for(i=0;i<n;i++)
         {
-            if(at[i]<=time && rt[i]>0 && rt[i]<min)
+            if(at[i]<=time && completed[i]==0 && bt[i]<min)
             {
-                min=rt[i];
-                sm=i;
+                min=bt[i];
+                smallest=i;
             }
         }
-        if(sm==-1)
+        if(smallest==-1)
         {
             time++;
-            continue;
         }
-        rt[sm]--;
-        time++;
-        if(rt[sm]==0)
+        else
         {
-            completed++;
-            ct[sm]=time;
-            tat[sm]=ct[sm]-at[sm];
-            wt[sm]=tat[sm]-bt[sm];
-            avgwt+=wt[sm];
-            avgtat+=tat[sm];
+            time=time+bt[smallest];
+            ct[smallest]=time;
+            tat[smallest]=ct[smallest]-at[smallest];
+            wt[smallest]=tat[smallest]-bt[smallest];
+            avgwt+=wt[smallest];
+            avgtat+=tat[smallest];
+            completed[smallest]=1;
+            count++;
         }
     }
     printf("\nP\tAT\tBT\tCT\tTAT\tWT\n");
     for(i=0;i<n;i++)
     {
-        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",i+1,at[i],bt[i],ct[i],tat[i],wt[i]);
+        printf("P%d\t%d\t%d\t%d\t%d\t%d\n",
+        i+1,at[i],bt[i],ct[i],tat[i],wt[i]);
     }
     printf("\nAverage Waiting Time = %.2f",avgwt/n);
     printf("\nAverage Turnaround Time = %.2f\n",avgtat/n);
